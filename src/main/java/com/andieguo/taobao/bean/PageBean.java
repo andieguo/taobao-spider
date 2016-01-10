@@ -1,6 +1,6 @@
 package com.andieguo.taobao.bean;
 
-public class PageData {
+public class PageBean {
 
 	private Integer pageSize;
 	private Integer currentPage;
@@ -23,13 +23,13 @@ public class PageData {
 	public void setTotalPage(Integer totalPage) {
 		this.totalPage = totalPage;
 	}
-	public PageData(Integer pageSize, Integer currentPage, Integer totalPage) {
+	public PageBean(Integer pageSize, Integer currentPage, Integer totalPage) {
 		super();
 		this.pageSize = pageSize;
 		this.currentPage = currentPage;
 		this.totalPage = totalPage;
 	}
-	public PageData() {
+	public PageBean() {
 		super();
 	}
 	@Override

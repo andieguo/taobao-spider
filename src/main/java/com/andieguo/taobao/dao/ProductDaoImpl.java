@@ -6,6 +6,7 @@ import java.sql.SQLException;
 import java.util.List;
 
 import com.andieguo.taobao.bean.TaobaoProduct;
+import com.andieguo.taobao.util.MD5Util;
 
 public class ProductDaoImpl extends BaseDao implements ProductDao {
 
@@ -37,30 +38,62 @@ public class ProductDaoImpl extends BaseDao implements ProductDao {
 		return rows;
 	}
 	
-	public List<TaobaoProduct> findAll() {
+	public List<TaobaoProduct> findAll(String tableName) {
 		// TODO Auto-generated method stub
-		return executeQuery(TaobaoProduct.class,"select * from tb_product order by id desc",new Object[]{});
+		return executeQuery(TaobaoProduct.class,"select * from "+MD5Util.MD5(tableName),new Object[]{});
 	}
 
-	public int saveProduct(TaobaoProduct product) {
+	public int saveProduct(String tableName,TaobaoProduct product) {
 		// TODO Auto-generated method stub
-		int rows = this.executeNonQuery("insert into tb_product(nid,detail_url,title,raw_title,reserve_price,view_price,nick,view_sales,user_id) values(?,?,?,?,?,?,?,?,?)"
+		int rows = this.executeNonQuery("insert into "+ MD5Util.MD5(tableName)
+				+ "(nid,detail_url,title,raw_title,reserve_price,view_price,nick,view_sales,user_id) values(?,?,?,?,?,?,?,?,?)"
 				,new Object[]{product.getNid(),product.getDetail_url(),product.getTitle(),product.getRaw_title(),product.getReserve_price(),product.getView_price(),product.getNick(),product.getView_sales(),product.getUser_id()});
 		return rows;
 	}
 
-	public int saveProudctList(List<TaobaoProduct> products){
-		int rows = executeNonQueryBatch("insert into tb_product(nid,detail_url,title,raw_title,reserve_price,view_price,nick,view_sales,user_id) values(?,?,?,?,?,?,?,?,?)",products);
+	public int saveProudctList(String tableName,List<TaobaoProduct> products){
+		int rows = executeNonQueryBatch("insert into "+MD5Util.MD5(tableName)
+				+ "(nid,detail_url,title,raw_title,reserve_price,view_price,nick,view_sales,user_id) values(?,?,?,?,?,?,?,?,?)",products);
 		return rows;
 	}
 	
-	public int deleteAll() {
+	public int deleteAll(String tableName) {
 		// TODO Auto-generated method stub
-		int rows = this.executeNonQuery("delete from tb_product",new Object[]{});
+		int rows = this.executeNonQuery("delete from "
+				+ MD5Util.MD5(tableName),new Object[]{});
 		return rows;
 	}
 	
-	public static void main(String[] args) {
+	public int creatTable(String tableName){
+		String sql = "CREATE TABLE `"+MD5Util.MD5(tableName)+"` ("+
+					  "`nid` varchar(20) NOT NULL,"+
+					  "`raw_title` varchar(100) NOT NULL,"+
+					  "`detail_url` text,"+
+					 " `title` text,"+
+					  "`reserve_price` double DEFAULT NULL,"+
+					 " `view_price` double DEFAULT NULL,"+
+					 " `nick` varchar(20) DEFAULT NULL,"+
+					  "`view_sales` varchar(20) DEFAULT NULL,"+
+					  "`user_id` varchar(20) DEFAULT NULL,"+
+					 " PRIMARY KEY (`nid`,`raw_title`)"+
+					") ENGINE=MyISAM DEFAULT CHARSET=utf8;";
+		int rows = this.executeNonQuery(sql, new Object[]{});
+		return rows;
+	}
+
+	public boolean existTable(String tableName) {
+		PreparedStatement pstmt = null;
+		Connection conn = null;
+		try {
+			conn = getConnection();
+			pstmt = conn.prepareStatement("select * from "+ MD5Util.MD5(tableName)+" where 0=1");
+			pstmt.executeQuery();
+			return true;
+		} catch (SQLException e) {
+			return false;
+		} finally{
+			closeAll(conn, pstmt, null);
+		}
 		
 	}
 

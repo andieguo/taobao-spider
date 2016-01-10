@@ -28,17 +28,16 @@ public class BaseDao {
 	private static String PASSWORD = null;
 	
 	static{
-		Properties properties = PropertiesUtil.loadFromInputStream(BaseDao.class.getClassLoader().getResourceAsStream("/config.properties"));
+		/**Properties properties = PropertiesUtil.loadFromInputStream(BaseDao.class.getClassLoader().getResourceAsStream("/config.properties"));
 		DRIVER =  properties.getProperty("jdbc.driver");
 		URL = properties.getProperty("jdbc.url");
 		USER = properties.getProperty("jdbc.user");
 		PASSWORD = properties.getProperty("jdbc.password");
-		/**
+		**/
 		DRIVER =  "com.mysql.jdbc.Driver";
 		URL = "jdbc:mysql://localhost:3306/db_taospider?useUnicode=true&amp;characterEncoding=utf-8";
 		USER = "root";
 		PASSWORD = "root";
-		**/
 	}
 	
 	/**

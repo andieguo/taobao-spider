@@ -18,22 +18,31 @@ public class ProductDaoTest extends TestCase
 	}
 
 	public void testFindAll(){
-    	for(TaobaoProduct product:dao.findAll()){
+    	for(TaobaoProduct product:dao.findAll("电脑2")){
 			System.out.println(product);
 		}
     }
     
     public void testSave(){
-		int sum = dao.saveProduct(new TaobaoProduct("1","1","1","1",1.0,1.0,"1","1","1"));
+		int sum = dao.saveProduct("电脑",new TaobaoProduct("1","2","1","2",1.0,1.0,"1","1","1"));
 		System.out.println(sum);
     }
     
     public void testSaveList(){
-    	int sum  = dao.saveProudctList(dao.findAll());
+    	int sum  = dao.saveProudctList("电脑",dao.findAll("电脑"));
 		System.out.println(sum);
     }
     
     public void testDeleteAll(){
-		dao.deleteAll();
+		dao.deleteAll("电脑");
+		dao.deleteAll("西服");
+    }
+    
+    public void testCreateTable(){
+    	dao.creatTable("电脑");
+    }
+    
+    public void testExistTable(){
+    	System.out.println(dao.existTable("电脑"));
     }
 }

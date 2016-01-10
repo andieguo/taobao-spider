@@ -47,6 +47,7 @@ public class SetDifferentUtil {
 		System.out.println("时间："+(endtime-starttime));
 		return result;
 	}
+	
 	/**
 	 * set有，otherset没有
 	 * 时间：30 时间复杂度：m+n
@@ -89,7 +90,7 @@ public class SetDifferentUtil {
 	}
 	
 	public static void main(String[] args) {
-		int sum = 10000;
+		int sum = 10;
 		Set<String> result = getDifferent(genOtherSet(sum),genSet(sum));
 		Set<String> result2 = getDifferent2(genOtherSet(sum),genSet(sum));
 		Set<String> result3 = getDifferent3(genOtherSet(sum),genSet(sum));
