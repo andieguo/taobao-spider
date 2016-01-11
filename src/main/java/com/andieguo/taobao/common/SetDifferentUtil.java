@@ -5,6 +5,7 @@ import java.util.LinkedHashMap;
 import java.util.Set;
 import java.util.Map;
 
+import com.andieguo.taobao.bean.TaobaoProduct;
 import com.google.common.collect.Sets;
 import com.google.common.collect.Sets.SetView;
 
@@ -84,6 +85,15 @@ public class SetDifferentUtil {
 		long starttime = System.currentTimeMillis();
 		SetView<String> diffSetHandle=Sets.difference(set, otherSet);//是得到左边中不同或者特有的元素，若无，则返回长度为0的集合
 		Set<String> result = diffSetHandle.immutableCopy();//返回一个不可变的左边Set中特有元素集合的Set拷贝
+		long endtime = System.currentTimeMillis();
+		System.out.println("时间3："+(endtime-starttime));
+		return result;
+	}
+	
+	public static Set<TaobaoProduct> getDifferent4(Set<TaobaoProduct> set,Set<TaobaoProduct> otherSet){
+		long starttime = System.currentTimeMillis();
+		SetView<TaobaoProduct> diffSetHandle = Sets.difference(set, otherSet);//是得到左边中不同或者特有的元素，若无，则返回长度为0的集合
+		Set<TaobaoProduct> result = diffSetHandle.immutableCopy();//返回一个不可变的左边Set中特有元素集合的Set拷贝
 		long endtime = System.currentTimeMillis();
 		System.out.println("时间3："+(endtime-starttime));
 		return result;

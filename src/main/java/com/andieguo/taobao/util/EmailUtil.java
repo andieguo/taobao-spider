@@ -11,6 +11,8 @@ import javax.mail.Transport;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 
+import com.andieguo.taobao.bean.TaobaoProduct;
+
 public class EmailUtil {
 
 	private String EmailServer = null;
@@ -137,15 +139,33 @@ public class EmailUtil {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-
 	}
 
 	public static void main(String[] args) {
 		//EmailUtil emailUtil = new EmailUtil("smtp.163.com", "andieguo@163.com", "andy");
 		//emailUtil.send("andieguo@163.com", "andieguo@foxmail.com", "Hello", "为了回馈新老用户，阿里云会不定期开展各类优惠活动，让新老用户享受到最实惠的产品服务，欢迎您订阅优惠活动类信息。如果您不想再接收此类信息，请点此取消订阅。");
-	
 		EmailUtil emailUtil = new EmailUtil("smtp.qq.com", "andieguo@qq.com", "andy");
-		emailUtil.send("andieguo@qq.com", "andieguo@qq.com", "Hello,andieguo", "为了回馈新老用户，阿里云会不定期开展各类优惠活动，让新老用户享受到最实惠的产品服务，欢迎您订阅优惠活动类信息。如果您不想再接收此类信息，请点此取消订阅。");
+		List<TaobaoProduct> sets = DownloadRest.downloadProduct("cpu",850,850,0).second;
+		StringBuffer buffer = new StringBuffer("<p style=\"border: 0px; margin: 0px; padding: 0px; line-height: 2em; font-size: 12px; font-family: 'Microsoft Yahei', 'Helvetica Neue', Helvetica, Arial, sans-serif; color: rgb(51, 51, 51);\">品类-KEY：</p>");
+		buffer.append("<table class=\"reference\" style=\"border: 0px; margin: 4px 0px; padding: 0px; border-collapse: collapse; width: 1400px; color: rgb(51, 51, 51); font-family: 'Open Sans', 'Helvetica Neue', Helvetica, Arial, STHeiti, 'Microsoft Yahei', sans-serif; font-size: 12px;\">");
+		buffer.append("<tbody style=\"border: 0px; margin: 0px; padding: 0px;\"><tr style=\"border: 0px; margin: 0px; padding: 0px; background-color: rgb(246, 244, 240);\">");
+		buffer.append("<th style=\"border: 1px solid rgb(85, 85, 85); margin: 0px; padding: 3px; font-size: 12px; color: rgb(255, 255, 255); vertical-align: top; width: 100px; background-color: rgb(85, 85, 85);\">ID</th>");
+		buffer.append("<th style=\"border: 1px solid rgb(85, 85, 85); margin: 0px; padding: 3px; font-size: 12px; color: rgb(255, 255, 255); vertical-align: top; width: 500px; background-color: rgb(85, 85, 85);\">标题</th>");
+		buffer.append("<th style=\"border: 1px solid rgb(85, 85, 85); margin: 0px; padding: 3px; font-size: 12px; color: rgb(255, 255, 255); vertical-align: top; width: 800px; background-color: rgb(85, 85, 85);\">链接</th>");
+		for(TaobaoProduct p : sets){
+			buffer.append("</tr><tr style=\"border: 0px; margin: 0px; padding: 0px;\">");
+			buffer.append("<td style=\"border: 1px solid rgb(212, 212, 212); margin: 0px; padding: 7px 5px; font-size: 1em; vertical-align: top;\">");
+			buffer.append(p.getNick());
+			buffer.append("</td>");
+			buffer.append("<td style=\"border: 1px solid rgb(212, 212, 212); margin: 0px; padding: 7px 5px; font-size: 1em; vertical-align: top;\">");
+			buffer.append(p.getRaw_title());
+			buffer.append("</td>");
+			buffer.append("<td style=\"border: 1px solid rgb(212, 212, 212); margin: 0px; padding: 7px 5px; font-size: 1em; vertical-align: top;\"><a href='").append(p.getDetail_url()).append("'>");
+			buffer.append(p.getDetail_url());
+			buffer.append("</a></td></tr>");
+		}
+		buffer.append("</tbody></table>");
+		emailUtil.send("andieguo@qq.com", "andieguo@qq.com", "通知，新品上架", buffer.toString());
 	}
 
 }

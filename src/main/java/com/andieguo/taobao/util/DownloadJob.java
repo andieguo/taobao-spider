@@ -1,7 +1,6 @@
 package com.andieguo.taobao.util;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Exchanger;
@@ -16,15 +15,10 @@ import org.quartz.JobExecutionException;
 import com.andieguo.taobao.bean.QueryBean;
 import com.andieguo.taobao.bean.TaobaoProduct;
 import com.andieguo.taobao.bean.ThreeTuple;
+import com.andieguo.taobao.common.CollectionUtil;
 import com.andieguo.taobao.common.SetDifferentUtil;
 import com.andieguo.taobao.dao.ProductDao;
 import com.andieguo.taobao.dao.ProductDaoImpl;
-import com.google.common.base.Function;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Multimap;
-import com.google.common.collect.Multimaps;
-import com.google.common.collect.Sets;
 
 public class DownloadJob implements Job{
 	private Logger logger = Logger.getLogger(DownloadJob.class);
@@ -72,13 +66,13 @@ public class DownloadJob implements Job{
 				if (originResult.size() == 0) {// 没有原始数据
 					productDao.saveProudctList(key, newResult);// 将新数据保存到数据库
 				} else {// 有原始数据，执行对比
-					Set<String> newKeys = convertList2MutiMap(newResult).keySet();//去重后的key
-					Set<String> oldKeys = convertList2MutiMap(originResult).keySet();//去重后的key
-					Set<String> resultKeys = SetDifferentUtil.getDifferent(newKeys, oldKeys);//差异的key
+					Set<TaobaoProduct> newKeys = CollectionUtil.removeDuplicate4Set(newResult);//去重后的集合
+					Set<TaobaoProduct> oldKeys = CollectionUtil.removeDuplicate4Set(originResult);//去重后的集合
+					Set<TaobaoProduct> resultKeys = SetDifferentUtil.getDifferent4(newKeys, oldKeys);//差异的key
 					if (resultKeys.size() > 0) {// 存在差异
 						// 删除数据库中的数据，更新内存的数据到数据库
 						productDao.deleteAll(key);
-						productDao.saveProudctList(key, removeDuplicate(newResult));//保存去重后的记录
+						productDao.saveProudctList(key,CollectionUtil.removeDuplicate4List(newResult));//保存去重后的记录
 						// 发送邮件
 						logger.info(key + "存在差异" + resultKeys.size());
 					} else {
@@ -97,31 +91,8 @@ public class DownloadJob implements Job{
 
 		}
 		service.shutdown();// 关闭线程池
-
 	}
-
-	public static Multimap<String, TaobaoProduct> convertList2MutiMap(List<TaobaoProduct> products) {
-		return Multimaps.index(products, new Function<TaobaoProduct, String>() {
-
-			public String apply(TaobaoProduct input) {
-				// TODO Auto-generated method stub
-				return input.getNid();
-			}
-
-		});
-	}
-
-	public static Map<String, TaobaoProduct> convertList2Map(List<TaobaoProduct> products) {
-		return Maps.uniqueIndex(products, new Function<TaobaoProduct, String>() {
-
-			public String apply(TaobaoProduct input) {
-				// TODO Auto-generated method stub
-				return input.getNid() + input.getDetail_url();
-			}
-
-		});
-	}
-
+	
 	public static void main(String[] args) {
 		DownloadJob job = new DownloadJob();
 		try {
@@ -132,10 +103,6 @@ public class DownloadJob implements Job{
 		}
 	}
 	
-	private static <T> List<T> removeDuplicate(final List<T> list) {
-		 return Lists.newArrayList(Sets.newLinkedHashSet(list));
-	}
-
 	public void execute(JobExecutionContext arg0) throws JobExecutionException {
 		// TODO Auto-generated method stub
 		//定时上传到本地

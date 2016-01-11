@@ -1,10 +1,12 @@
 package com.andieguo.taobao;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 import com.andieguo.taobao.bean.TaobaoProduct;
+import com.andieguo.taobao.common.SetDifferentUtil;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Sets;
@@ -41,6 +43,26 @@ public class CollectionTest extends TestCase{
 		products.add(new TaobaoProduct("2", "2", "2", "2", 1.0, 1.0, "2", "2", "2"));
 		Set<TaobaoProduct> productSet = Sets.newLinkedHashSet(products);
 		for(TaobaoProduct p:productSet){
+			System.out.println(p);
+		}
+	}
+	
+	public void testSetDifferent(){
+		Set<TaobaoProduct> products = new HashSet<TaobaoProduct>();
+		for(int i=0;i<40;i++){
+			TaobaoProduct p = new TaobaoProduct("1"+i, "1"+i, "1"+i, "1"+i, 1.0, 1.0, "1"+i, "1"+i, "1"+i);
+			System.out.println(p);
+			products.add(p);
+		}
+		System.out.println("-------------");
+		Set<TaobaoProduct> products2 = new HashSet<TaobaoProduct>();
+		for(int i=2;i<42;i++){
+			TaobaoProduct p = new TaobaoProduct("1"+i, "1"+i, "1"+i, "1"+i, 1.0, 1.0, "1"+i, "1"+i, "1"+i);
+			System.out.println(p);
+			products2.add(p);
+		}
+		Set<TaobaoProduct> result = SetDifferentUtil.getDifferent4(products2, products);
+		for(TaobaoProduct p : result){
 			System.out.println(p);
 		}
 	}
