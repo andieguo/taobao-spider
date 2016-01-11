@@ -21,9 +21,11 @@ import com.andieguo.taobao.common.SetDifferentUtil;
 import com.andieguo.taobao.dao.ProductDao;
 import com.andieguo.taobao.dao.ProductDaoImpl;
 import com.google.common.base.Function;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Multimaps;
+import com.google.common.collect.Sets;
 
 public class DownloadJob implements Job{
 	private Logger logger = Logger.getLogger(DownloadJob.class);
@@ -66,18 +68,15 @@ public class DownloadJob implements Job{
 				if (originResult.size() == 0) {// 没有原始数据
 					productDao.saveProudctList(key, newResult);// 将新数据保存到数据库
 				} else {// 有原始数据，执行对比
-					Set<String> newKeys = convertList2Map(newResult).keySet();
-					Set<String> oldKeys = convertList2Map(originResult).keySet();
-					Set<String> resultKeys = SetDifferentUtil.getDifferent(newKeys, oldKeys);
+					Set<String> newKeys = convertList2MutiMap(newResult).keySet();//去重后的key
+					Set<String> oldKeys = convertList2MutiMap(originResult).keySet();//去重后的key
+					Set<String> resultKeys = SetDifferentUtil.getDifferent(newKeys, oldKeys);//差异的key
 					if (resultKeys.size() > 0) {// 存在差异
 						// 删除数据库中的数据，更新内存的数据到数据库
 						productDao.deleteAll(key);
-						productDao.saveProudctList(key, newResult);
+						productDao.saveProudctList(key, removeDuplicate(newResult));//保存去重后的记录
 						// 发送邮件
 						logger.info(key + "存在差异" + resultKeys.size());
-						String content = "";
-						EmailUtil emailUtil = new EmailUtil("smtp.qq.com", "andieguo@qq.com", "andy18672197652");
-						emailUtil.send("andieguo@qq.com", "andieguo@qq.com", "发现新品上架",content);
 					} else {
 						logger.info(key + "不存在差异");
 					}
@@ -127,6 +126,10 @@ public class DownloadJob implements Job{
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+	}
+	
+	private static <T> List<T> removeDuplicate(final List<T> list) {
+		 return Lists.newArrayList(Sets.newLinkedHashSet(list));
 	}
 
 	public void execute(JobExecutionContext arg0) throws JobExecutionException {

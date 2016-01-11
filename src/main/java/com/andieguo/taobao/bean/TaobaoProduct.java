@@ -89,5 +89,19 @@ public class TaobaoProduct {
 				+ ", view_sales=" + view_sales + ", user_id=" + user_id + "]";
 	}
 	
+	@Override
+	public boolean equals(Object obj) {
+		// TODO Auto-generated method stub
+		TaobaoProduct product = (TaobaoProduct)obj;
+		return nid.equals(product.getNid()) && detail_url.equals(product.getDetail_url());
+	}
+	
+	@Override
+	public int hashCode() {
+		// TODO Auto-generated method stub
+		String input = nid+detail_url;
+		return input.hashCode();
+	}
+	
 }
 
