@@ -1,6 +1,5 @@
 package com.andieguo.taobao.util;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -43,14 +42,19 @@ public class DownloadJob implements Job{
 		ProductDao productDao = new ProductDaoImpl();
 		ExecutorService service = Executors.newSingleThreadExecutor(); // 创建线程池：区别newSingleThreadExecutor与newCachedThreadPool
 		Exchanger<ThreeTuple<Integer, String, List<TaobaoProduct>>> exchanger = new Exchanger<ThreeTuple<Integer, String, List<TaobaoProduct>>>();// 子线程与主线程交换数据
-		List<QueryBean> keys = new ArrayList<QueryBean>();
-		keys.add(LoadQueryBean.load().get(0));
-		int sum = keys.size();
+		List<QueryBean> keys = LoadQueryBean.load();
+		if(keys == null){
+			logger.info("加载查询对象失败");
+			return;
+		}
+		int sum = 2;
 		CountDownLatch downLatch = new CountDownLatch(sum);// 进度条计数
-		for (QueryBean key : keys) {
-			QueryRunnable queryRunnable = new QueryRunnable(key, 0, 5, exchanger, downLatch);
+		for (int i=0;i<sum;i++) {
+			QueryRunnable queryRunnable = new QueryRunnable(keys.get(i), 0, 5, exchanger, downLatch);
 			service.execute(queryRunnable);// 为线程池添加任务
 		}
+		FinnishRunnable finnishRunable = new FinnishRunnable(downLatch);
+		service.execute(finnishRunable);// 为线程池添加任务
 		// 主线程交换数据
 		Integer total = Integer.valueOf(0);
 		for (int i = 0; i < sum; i++) {

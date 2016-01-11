@@ -83,8 +83,17 @@ public class DownloadRest {
 		JSONObject jsonObject = new JSONObject(g_page_config);
 		JSONObject modsObj = jsonObject.getJSONObject("mods");
 		JSONObject pagerObj = modsObj.getJSONObject("pager");
-		JSONObject pagerDataObj = pagerObj.getJSONObject("data");
-		PageBean pageData = new PageBean(pagerDataObj.getInt("pageSize"), pagerDataObj.getInt("currentPage"), pagerDataObj.getInt("totalPage"));
+		String pageStatus = pagerObj.getString("status");
+		PageBean pageData = null;
+		if(pageStatus.equals("show")){
+			JSONObject pagerDataObj = pagerObj.getJSONObject("data");
+			pageData = new PageBean(pagerDataObj.getInt("pageSize"), pagerDataObj.getInt("currentPage"), pagerDataObj.getInt("totalPage"));
+		}else{
+			JSONObject sortbarObj = modsObj.getJSONObject("sortbar");
+			JSONObject sortbarDataObj = sortbarObj.getJSONObject("data");
+			JSONObject sortbarPagerObj = sortbarDataObj.getJSONObject("pager");
+			pageData = new PageBean(sortbarPagerObj.getInt("pageSize"), sortbarPagerObj.getInt("currentPage"), sortbarPagerObj.getInt("totalPage"));
+		}
 		logger.info(pageData);
 		JSONObject itemlistObj = modsObj.getJSONObject("itemlist");
 		JSONObject dataObj = itemlistObj.getJSONObject("data");
