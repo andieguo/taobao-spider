@@ -19,7 +19,7 @@ public class InitServlet implements ServletContextListener {
 	public void contextInitialized(ServletContextEvent arg0) {
 		// TODO Auto-generated method stub
 		logger.info("系统启动");
-		QuartzManager.addJob("DownloadRestJob", DownloadJob.class.getName(), "0 */2 * * * ?");
+		QuartzManager.addJob("DownloadRestJob", DownloadJob.class.getName(), "0 */30 * * * ?");
 	}
 
 }

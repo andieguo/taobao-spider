@@ -1,9 +1,13 @@
 package com.andieguo.taobao.util;
 
+import java.io.File;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 
 import javax.mail.Message;
 import javax.mail.Session;
@@ -11,9 +15,15 @@ import javax.mail.Transport;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 
+import org.apache.log4j.Logger;
+
+import com.andieguo.taobao.bean.QueryBean;
 import com.andieguo.taobao.bean.TaobaoProduct;
+import com.andieguo.taobao.common.Constants;
+import com.andieguo.taobao.common.FileUtil;
 
 public class EmailUtil {
+	private static Logger logger = Logger.getLogger(EmailUtil.class);
 
 	private String EmailServer = null;
 	private String EmailUser = null;
@@ -138,34 +148,80 @@ public class EmailUtil {
 
 		} catch (Exception e) {
 			e.printStackTrace();
+			logger.error("",e);
 		}
 	}
 
-	public static void main(String[] args) {
-		//EmailUtil emailUtil = new EmailUtil("smtp.163.com", "andieguo@163.com", "andy");
-		//emailUtil.send("andieguo@163.com", "andieguo@foxmail.com", "Hello", "为了回馈新老用户，阿里云会不定期开展各类优惠活动，让新老用户享受到最实惠的产品服务，欢迎您订阅优惠活动类信息。如果您不想再接收此类信息，请点此取消订阅。");
+	public static void sendNewProduct(Map<String,Set<TaobaoProduct>> resultMap,List<QueryBean> failQueryBeanList){
 		EmailUtil emailUtil = new EmailUtil("smtp.qq.com", "andieguo@qq.com", "andy");
-		List<TaobaoProduct> sets = DownloadRest.downloadProduct("cpu",850,850,0).second;
-		StringBuffer buffer = new StringBuffer("<p style=\"border: 0px; margin: 0px; padding: 0px; line-height: 2em; font-size: 12px; font-family: 'Microsoft Yahei', 'Helvetica Neue', Helvetica, Arial, sans-serif; color: rgb(51, 51, 51);\">品类-KEY：</p>");
-		buffer.append("<table class=\"reference\" style=\"border: 0px; margin: 4px 0px; padding: 0px; border-collapse: collapse; width: 1400px; color: rgb(51, 51, 51); font-family: 'Open Sans', 'Helvetica Neue', Helvetica, Arial, STHeiti, 'Microsoft Yahei', sans-serif; font-size: 12px;\">");
-		buffer.append("<tbody style=\"border: 0px; margin: 0px; padding: 0px;\"><tr style=\"border: 0px; margin: 0px; padding: 0px; background-color: rgb(246, 244, 240);\">");
-		buffer.append("<th style=\"border: 1px solid rgb(85, 85, 85); margin: 0px; padding: 3px; font-size: 12px; color: rgb(255, 255, 255); vertical-align: top; width: 100px; background-color: rgb(85, 85, 85);\">ID</th>");
-		buffer.append("<th style=\"border: 1px solid rgb(85, 85, 85); margin: 0px; padding: 3px; font-size: 12px; color: rgb(255, 255, 255); vertical-align: top; width: 500px; background-color: rgb(85, 85, 85);\">标题</th>");
-		buffer.append("<th style=\"border: 1px solid rgb(85, 85, 85); margin: 0px; padding: 3px; font-size: 12px; color: rgb(255, 255, 255); vertical-align: top; width: 800px; background-color: rgb(85, 85, 85);\">链接</th>");
-		for(TaobaoProduct p : sets){
-			buffer.append("</tr><tr style=\"border: 0px; margin: 0px; padding: 0px;\">");
-			buffer.append("<td style=\"border: 1px solid rgb(212, 212, 212); margin: 0px; padding: 7px 5px; font-size: 1em; vertical-align: top;\">");
-			buffer.append(p.getNick());
-			buffer.append("</td>");
-			buffer.append("<td style=\"border: 1px solid rgb(212, 212, 212); margin: 0px; padding: 7px 5px; font-size: 1em; vertical-align: top;\">");
-			buffer.append(p.getRaw_title());
-			buffer.append("</td>");
-			buffer.append("<td style=\"border: 1px solid rgb(212, 212, 212); margin: 0px; padding: 7px 5px; font-size: 1em; vertical-align: top;\"><a href='").append(p.getDetail_url()).append("'>");
-			buffer.append(p.getDetail_url());
-			buffer.append("</a></td></tr>");
+		if(resultMap.size() > 0){
+			StringBuffer buffer = new StringBuffer("");
+			for(String key : resultMap.keySet()){
+				buffer.append("<p style=\"border: 0px; margin: 0px; padding: 0px; line-height: 2em; font-size: 12px; font-family: 'Microsoft Yahei', 'Helvetica Neue', Helvetica, Arial, sans-serif; color: rgb(51, 51, 51);\">品类-"
+						+ key + "：</p>");
+				buffer.append("<table class=\"reference\" style=\"border: 0px; margin: 4px 0px; padding: 0px; border-collapse: collapse; width: 1400px; color: rgb(51, 51, 51); font-family: 'Open Sans', 'Helvetica Neue', Helvetica, Arial, STHeiti, 'Microsoft Yahei', sans-serif; font-size: 12px;\">");
+				buffer.append("<tbody style=\"border: 0px; margin: 0px; padding: 0px;\"><tr style=\"border: 0px; margin: 0px; padding: 0px; background-color: rgb(246, 244, 240);\">");
+				buffer.append("<th style=\"border: 1px solid rgb(85, 85, 85); margin: 0px; padding: 3px; font-size: 12px; color: rgb(255, 255, 255); vertical-align: top; width: 100px; background-color: rgb(85, 85, 85);\">ID</th>");
+				buffer.append("<th style=\"border: 1px solid rgb(85, 85, 85); margin: 0px; padding: 3px; font-size: 12px; color: rgb(255, 255, 255); vertical-align: top; width: 500px; background-color: rgb(85, 85, 85);\">标题</th>");
+				buffer.append("<th style=\"border: 1px solid rgb(85, 85, 85); margin: 0px; padding: 3px; font-size: 12px; color: rgb(255, 255, 255); vertical-align: top; width: 800px; background-color: rgb(85, 85, 85);\">链接</th>");
+				for(TaobaoProduct p : resultMap.get(key)){
+					buffer.append("</tr><tr style=\"border: 0px; margin: 0px; padding: 0px;\">");
+					buffer.append("<td style=\"border: 1px solid rgb(212, 212, 212); margin: 0px; padding: 7px 5px; font-size: 1em; vertical-align: top;\">");
+					buffer.append(subString(p.getNick(),9));
+					buffer.append("</td>");
+					buffer.append("<td style=\"border: 1px solid rgb(212, 212, 212); margin: 0px; padding: 7px 5px; font-size: 1em; vertical-align: top;\">");
+					buffer.append(subString(p.getRaw_title(),43));
+					buffer.append("</td>");
+					buffer.append("<td style=\"border: 1px solid rgb(212, 212, 212); margin: 0px; padding: 7px 5px; font-size: 1em; vertical-align: top;\"><a href='").append(p.getDetail_url()).append("'>");
+					buffer.append(subString(p.getDetail_url(),64));
+					buffer.append("</a></td></tr>");
+				}
+				buffer.append("</tbody></table>");
+				buffer.append("</br>");
+			}
+			buffer.append("</hr><p>以下品类没有查询到结果，请手动调整价位后查询<p>");
+			for(QueryBean queryBean : failQueryBeanList){
+				buffer.append("<p style=\"border: 0px; margin: 0px; padding: 0px; line-height: 2em; font-size: 12px; font-family: 'Microsoft Yahei', 'Helvetica Neue', Helvetica, Arial, sans-serif; color: rgb(51, 51, 51);\">品类-");
+				buffer.append(queryBean.getKey()).append(":[").append(queryBean.getStartprice()).append("-").append(queryBean.getEndprice()).append("]");
+				buffer.append("</p>");
+			}
+			List<String> emailList = new ArrayList<String>();
+			emailList.add("andieguo@qq.com");
+			//emailList.add("271169790@qq.com");
+			emailUtil.sendList("andieguo@qq.com", emailList, "通知，新品上架", buffer.toString());
+			SimpleDateFormat format = new SimpleDateFormat("yyyMMDDHHmmss");
+			FileUtil.saveJSON(buffer.toString().getBytes(), Constants.PROJECTPATH+File.separator+format.format(new Date())+".data");
+		}else{
+			StringBuffer buffer = new StringBuffer("无新品上架");
+			buffer.append("</hr><p>以下品类没有查询到结果，请手动调整价位后查询<p>");
+			for(QueryBean queryBean : failQueryBeanList){
+				buffer.append("<p style=\"border: 0px; margin: 0px; padding: 0px; line-height: 2em; font-size: 12px; font-family: 'Microsoft Yahei', 'Helvetica Neue', Helvetica, Arial, sans-serif; color: rgb(51, 51, 51);\">品类-");
+				buffer.append(queryBean.getKey()).append(":[").append(queryBean.getStartprice()).append("-").append(queryBean.getEndprice()).append("]");
+				buffer.append("</p>");
+			}
+			emailUtil.send("andieguo@qq.com", "andieguo@qq.com", "通知，无新品上架", buffer.toString());
+			SimpleDateFormat format = new SimpleDateFormat("yyyMMDDHHmmss");
+			FileUtil.saveJSON(buffer.toString().getBytes(), Constants.PROJECTPATH+File.separator+format.format(new Date())+".data");
 		}
-		buffer.append("</tbody></table>");
-		emailUtil.send("andieguo@qq.com", "andieguo@qq.com", "通知，新品上架", buffer.toString());
 	}
-
+	
+	public static String subString(String content,Integer len){
+		if(content.length() < len){
+			return content;
+		}else{
+			return content.substring(0, len)+"...";
+		}
+	}
+	
+	
+	public static void main(String[] args) {
+		EmailUtil emailUtil = new EmailUtil("smtp.qq.com", "andieguo@qq.com", "andy");
+		emailUtil.send("andieguo@qq.com", "andieguo@qq.com", "Hello", "为了回馈新老用户，阿里云会不定期开展各类优惠活动，让新老用户享受到最实惠的产品服务，欢迎您订阅优惠活动类信息。如果您不想再接收此类信息，请点此取消订阅。");
+		String href = "//item.taobao.com/item.htm?id=37702650027&ns=1&abbucket=9#detail";//64
+		String title = "奇瑞QQ QQ3QQ6A1风云2旗云123M1X1 A5E5艾瑞泽E3雨刮片雨刷器原装";//43
+		String ID = "快易捷汽车用品商城" ;//9
+		System.out.println(href.length());
+		System.out.println(title.length());
+		System.out.println(ID.length());
+	}
 }

@@ -3,6 +3,7 @@ package com.andieguo.taobao;
 import com.andieguo.taobao.bean.TaobaoProduct;
 import com.andieguo.taobao.dao.ProductDao;
 import com.andieguo.taobao.dao.ProductDaoImpl;
+import com.andieguo.taobao.util.MD5Util;
 
 import junit.framework.TestCase;
 
@@ -18,13 +19,13 @@ public class ProductDaoTest extends TestCase
 	}
 
 	public void testFindAll(){
-    	for(TaobaoProduct product:dao.findAll("电脑2")){
+    	for(TaobaoProduct product:dao.findAll("E5-2648V3")){
 			System.out.println(product);
 		}
     }
     
     public void testSave(){
-		int sum = dao.saveProduct("电脑",new TaobaoProduct("1","2","1","2",1.0,1.0,"1","1","1"));
+		int sum = dao.saveProduct("E5-2648V3",new TaobaoProduct("1","2","1","2",1.0,1.0,"1","1","1"));
 		System.out.println(sum);
     }
     
@@ -34,15 +35,19 @@ public class ProductDaoTest extends TestCase
     }
     
     public void testDeleteAll(){
-		dao.deleteAll("电脑");
-		dao.deleteAll("西服");
+		dao.deleteAll("E5-2648V3");
     }
     
     public void testCreateTable(){
-    	dao.creatTable("电脑");
+    	dao.creatTable("E5-2648V3");
     }
     
     public void testExistTable(){
-    	System.out.println(dao.existTable("电脑"));
+    	System.out.println("12723e967d890496c15c2affde86b05c".length());
+    	System.out.println(MD5Util.MD5("E5-267V3"));
+    	System.out.println(MD5Util.MD5("E5-2648V3"));
+    	System.out.println(MD5Util.MD5("E5-2643"));
+    	System.out.println(MD5Util.MD5("E5-2643V2"));
+    	System.out.println(dao.existTable("E5-2648V3"));
     }
 }

@@ -5,10 +5,13 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.List;
 
+import org.apache.log4j.Logger;
+
 import com.andieguo.taobao.bean.TaobaoProduct;
 import com.andieguo.taobao.util.MD5Util;
 
 public class ProductDaoImpl extends BaseDao implements ProductDao {
+	private static Logger logger = Logger.getLogger(ProductDaoImpl.class);
 
 	public int executeNonQueryBatch(String sql,List<TaobaoProduct> products) { 
 		int rows = -1;
@@ -31,7 +34,7 @@ public class ProductDaoImpl extends BaseDao implements ProductDao {
 				rows += count;
 			}
 		} catch (SQLException e) {
-			System.out.println(e.getMessage());
+			logger.error("", e);
 		} finally{
 			closeAll(conn, pstmt, null);
 		}
@@ -40,27 +43,27 @@ public class ProductDaoImpl extends BaseDao implements ProductDao {
 	
 	public List<TaobaoProduct> findAll(String tableName) {
 		// TODO Auto-generated method stub
-		return executeQuery(TaobaoProduct.class,"select * from "+MD5Util.MD5(tableName),new Object[]{});
+		return executeQuery(TaobaoProduct.class,"select * from `"+MD5Util.MD5(tableName)+"`",new Object[]{});
 	}
 
 	public int saveProduct(String tableName,TaobaoProduct product) {
 		// TODO Auto-generated method stub
-		int rows = this.executeNonQuery("insert into "+ MD5Util.MD5(tableName)
-				+ "(nid,detail_url,title,raw_title,reserve_price,view_price,nick,view_sales,user_id) values(?,?,?,?,?,?,?,?,?)"
+		int rows = this.executeNonQuery("insert into `"+ MD5Util.MD5(tableName)
+				+ "` (nid,detail_url,title,raw_title,reserve_price,view_price,nick,view_sales,user_id) values(?,?,?,?,?,?,?,?,?)"
 				,new Object[]{product.getNid(),product.getDetail_url(),product.getTitle(),product.getRaw_title(),product.getReserve_price(),product.getView_price(),product.getNick(),product.getView_sales(),product.getUser_id()});
 		return rows;
 	}
 
 	public int saveProudctList(String tableName,List<TaobaoProduct> products){
-		int rows = executeNonQueryBatch("insert into "+MD5Util.MD5(tableName)
-				+ "(nid,detail_url,title,raw_title,reserve_price,view_price,nick,view_sales,user_id) values(?,?,?,?,?,?,?,?,?)",products);
+		int rows = executeNonQueryBatch("insert into `"+MD5Util.MD5(tableName)
+				+ "` (nid,detail_url,title,raw_title,reserve_price,view_price,nick,view_sales,user_id) values(?,?,?,?,?,?,?,?,?)",products);
 		return rows;
 	}
 	
 	public int deleteAll(String tableName) {
 		// TODO Auto-generated method stub
-		int rows = this.executeNonQuery("delete from "
-				+ MD5Util.MD5(tableName),new Object[]{});
+		int rows = this.executeNonQuery("delete from `"
+				+ MD5Util.MD5(tableName)+"`",new Object[]{});
 		return rows;
 	}
 	
@@ -86,7 +89,7 @@ public class ProductDaoImpl extends BaseDao implements ProductDao {
 		Connection conn = null;
 		try {
 			conn = getConnection();
-			pstmt = conn.prepareStatement("select * from "+ MD5Util.MD5(tableName)+" where 0=1");
+			pstmt = conn.prepareStatement("select * from `"+ MD5Util.MD5(tableName)+"` where 0=1");
 			pstmt.executeQuery();
 			return true;
 		} catch (SQLException e) {

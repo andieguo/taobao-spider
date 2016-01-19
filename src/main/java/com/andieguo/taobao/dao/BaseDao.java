@@ -11,6 +11,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
+import org.apache.log4j.Logger;
+
 import com.andieguo.taobao.common.PropertiesUtil;
 
 /**
@@ -26,6 +28,7 @@ public class BaseDao {
 	private static String URL = null;
 	private static String USER = null;
 	private static String PASSWORD = null;
+	private static Logger logger = Logger.getLogger(BaseDao.class);
 	
 	static{
 		/**Properties properties = PropertiesUtil.loadFromInputStream(BaseDao.class.getClassLoader().getResourceAsStream("/config.properties"));
@@ -79,7 +82,7 @@ public class BaseDao {
 			}
 			return objects;
 		} catch (Exception e) {
-			System.out.println(e.getMessage());
+			logger.error("", e);
 		} finally {
 			closeAll(conn, pstmt, rs);
 		}
@@ -99,7 +102,7 @@ public class BaseDao {
 			//获取连接对象
 			conn = (Connection) DriverManager.getConnection(URL, USER, PASSWORD);
 		} catch (Exception e) {
-			System.out.println(e.getMessage());
+			logger.error("", e);
 		} 
 		return conn;
 	}
@@ -124,7 +127,7 @@ public class BaseDao {
 			}
 			rows = pstmt.executeUpdate();
 		} catch (SQLException e) {
-			System.out.println(e.getMessage());
+			logger.error("", e);
 		} finally{
 			closeAll(conn, pstmt, null);
 		}
@@ -152,7 +155,7 @@ public class BaseDao {
 				conn = null;
 			}
 		} catch (SQLException e) {
-			System.out.println(e.getMessage());
+			logger.error("", e);
 		}
 
 	}

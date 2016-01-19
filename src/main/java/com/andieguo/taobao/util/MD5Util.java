@@ -28,6 +28,8 @@ public class MD5Util {
         }
     }
     public static void main(String[] args) {
+    	//1F69B3D54C2F95A014EA3CC131A34D5B
+    	//56563EDF23B9D717DC63981B8836FC60
         System.out.println(MD5Util.MD5("20121221"));
         System.out.println(MD5Util.MD5("加密"));
     }
